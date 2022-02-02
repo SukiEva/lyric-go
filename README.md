@@ -32,7 +32,7 @@ func main() {
 		Title:    "孤独",  // Must
 		Artist:   "邓紫棋", // Suggest
 		Album:    "",    // Suggest
-		Duration: 0,
+		Duration: 1000,
 	}
 	lrc, err := l.GetLyric(data)
 	if err != nil {
@@ -61,7 +61,7 @@ func main() {
 		Title:    "孤独",  // Must
 		Artist:   "邓紫棋", // Suggest
 		Album:    "",    // Suggest
-		Duration: 0,
+		Duration: 1000,
 	}
 	lrc, err := l.GetLyric(data)
 	if err != nil {
