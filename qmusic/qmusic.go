@@ -3,8 +3,8 @@ package qmusic
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/SukiEva/lyric-go/lrc"
 	"log"
-	"lyric/lrc"
 )
 
 type Qmusic struct {

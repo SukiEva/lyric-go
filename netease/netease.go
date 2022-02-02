@@ -2,8 +2,8 @@ package netease
 
 import (
 	"fmt"
+	"github.com/SukiEva/lyric-go/lrc"
 	"log"
-	"lyric/lrc"
 )
 
 type Netease struct {
