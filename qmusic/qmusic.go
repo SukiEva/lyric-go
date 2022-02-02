@@ -1,4 +1,4 @@
-package kugou
+package qmusic
 
 import (
 	"encoding/base64"
@@ -7,28 +7,29 @@ import (
 	"lyric/lrc"
 )
 
-type Kugou struct {
+type Qmusic struct {
 }
 
 const (
-	baseUrl         = "http://lyrics.kugou.com/"
-	searchUrlFormat = baseUrl + "search?ver=1&man=yes&client=pc&keyword=%s&duration=%d"
-	lyricUrlFormat  = baseUrl + "download?ver=1&client=pc&id=%s&accesskey=%s&fmt=lrc&charset=utf8"
+	baseUrl         = "https://c.y.qq.com/"
+	refererUrl      = "https://y.qq.com"
+	searchUrlFormat = baseUrl + "soso/fcgi-bin/client_search_cp?w=%s&format=json"
+	lyricUrlFormat  = baseUrl + "lyric/fcgi-bin/fcg_query_lyric_yqq.fcg?songmid=%s&format=json"
 )
 
 var c = lrc.NewClient()
 
-func New() *Kugou {
-	return &Kugou{}
+func New() *Qmusic {
+	return &Qmusic{}
 }
 
-func (*Kugou) GetLyric(data lrc.MediaData) string {
+func (*Qmusic) GetLyric(data lrc.MediaData) string {
 	lyricUrl := getLyricUrl(data)
 	if lyricUrl == "" {
 		log.Println("Error not finding lyric url")
 		return ""
 	}
-	res, err := c.Get(lyricUrl, "")
+	res, err := c.Get(lyricUrl, refererUrl)
 	if err != nil {
 		log.Printf("Error getting %s : %s\n", lyricUrl, err)
 		return ""
@@ -38,7 +39,7 @@ func (*Kugou) GetLyric(data lrc.MediaData) string {
 	if err := lrc.ParseJson(res, &jsonObj); err != nil {
 		return ""
 	}
-	encoded := jsonObj["content"].(string)
+	encoded := jsonObj["lyric"].(string)
 	decoded, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
 		log.Println("Error decoding lyric")
@@ -48,8 +49,8 @@ func (*Kugou) GetLyric(data lrc.MediaData) string {
 }
 
 func getLyricUrl(data lrc.MediaData) string {
-	searchUrl := fmt.Sprintf(searchUrlFormat, lrc.GetSearchKey(data), data.Duration)
-	res, err := c.Get(searchUrl, "")
+	searchUrl := fmt.Sprintf(searchUrlFormat, lrc.GetSearchKey(data))
+	res, err := c.Get(searchUrl, refererUrl)
 	if err != nil {
 		log.Printf("Error getting %s : %s\n", searchUrl, err)
 		return ""
@@ -59,25 +60,21 @@ func getLyricUrl(data lrc.MediaData) string {
 	if err := lrc.ParseJson(res, &jsonObj); err != nil {
 		return ""
 	}
-	status := jsonObj["status"].(float64)
-	if status != 200 {
+	status := jsonObj["code"].(float64)
+	if status != 0 {
 		return ""
 	}
-	candidates := jsonObj["candidates"].([]interface{})
-	maxScore := float64(-1)
-	id := ""
-	accessKey := ""
+	candidates := jsonObj["data"].(map[string]interface{})["song"].(map[string]interface{})["list"].([]interface{})
+	mid := ""
 	for _, cand := range candidates {
 		candidate := cand.(map[string]interface{})
-		score := candidate["score"].(float64)
-		if score > maxScore {
-			maxScore = score
-			id = candidate["id"].(string)
-			accessKey = candidate["accesskey"].(string)
+		name := candidate["songname"].(string)
+		if data.Title == name {
+			mid = candidate["songmid"].(string)
 		}
 	}
-	if maxScore == -1 {
+	if mid == "" {
 		return ""
 	}
-	return fmt.Sprintf(lyricUrlFormat, id, accessKey)
+	return fmt.Sprintf(lyricUrlFormat, mid)
 }

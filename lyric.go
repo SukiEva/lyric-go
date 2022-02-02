@@ -1,8 +1,7 @@
 package lyric
 
 //import (
-//	"lyric/kugou"
-//	"lyric/lrc"
+//	"github.com/SukiEva/lyric"
 //)
 //
 //type provider interface {

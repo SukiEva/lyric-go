@@ -19,9 +19,12 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) Get(url string) (resp *http.Response, err error) {
+func (c *Client) Get(url string, referer string) (resp *http.Response, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0")
+	if referer != "" {
+		req.Header.Add("Referer", referer)
+	}
 	if err != nil {
 		return nil, err
 	}
