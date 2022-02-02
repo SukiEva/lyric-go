@@ -6,8 +6,3 @@ type MediaData struct {
 	Album    string
 	Duration int
 }
-
-type Lrc struct {
-	Lyric    string
-	Distance int
-}

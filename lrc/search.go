@@ -5,7 +5,7 @@ import (
 )
 
 func GetSearchKey(data MediaData) string {
-	var key string
+	var key = data.Title
 	if data.Artist != "" {
 		key = data.Artist + "-" + data.Title
 	} else if data.Album != "" {
