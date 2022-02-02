@@ -1,3 +1,3 @@
-module lyric
+module lyric-go
 
 go 1.17
